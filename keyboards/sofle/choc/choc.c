@@ -1,4 +1,7 @@
-/* Copyright 2021 Carlos Martins
+/* Copyright 2023 F. Gaspar
+ *
+ * Originally from:
+ * Copyright 2021 Carlos Martins
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
