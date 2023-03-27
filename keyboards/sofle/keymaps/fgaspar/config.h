@@ -44,6 +44,9 @@
     #undef TAPPING_TERM
     #define TAPPING_TERM 200
 #endif
+#define IGNORE_MOD_TAP_INTERRUPT
+#define HOLD_ON_OTHER_KEY_PRESS
+
 #define ENCODER_DIRECTION_FLIP
 
 
