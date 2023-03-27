@@ -31,20 +31,8 @@ enum custom_keycodes {
   RAISE,
   ADJUST,
   RGBRST,
-  KC_RACL//, // right alt / colon
-  //LYR_LOWER_ALT // switch to lower laywer and hold ALT
+  KC_ENT_RAISE
 };
-
-// // Tap Dance declarations
-// enum {
-//     TD_ALT_LOWER,
-// };
-// 
-// // Tap Dance definitions
-// qk_tap_dance_action_t tap_dance_actions[] = {
-//     // Tap once for alt, twice for layer and alt
-//     [TD_ALT_LOWER] = ACTION_TAP_DANCE_DOUBLE(KC_RACL, LYR_LOWER_ALT),
-// };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_QWERTY] = LAYOUT_split_3x6_3(
@@ -57,8 +45,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     SC_LSPO,  KC_Z,  KC_X,  KC_C,  KC_V,  KC_B,                   KC_N,  KC_M,KC_COMM,KC_DOT,KC_SLSH,SC_RSPC,
   //|------+------+------+------+------+------+------|  |------+------+------+-------+------+-------+--------|
                                KC_LGUI,
-                                        KC_RACL,
-                                               KC_ENT,   KC_SPC, RAISE, LOWER
+                                        LALT_T(KC_SPC),
+                                               KC_ENT,   KC_SPC,LT(0, KC_ENT_RAISE),
+                                                                       LOWER
                               //`--------------------'  `--------------------'
   ),
 
@@ -305,8 +294,6 @@ bool oled_task_user(void) {
 
 #endif
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-  static uint16_t my_colon_timer;
-
   switch (keycode) {
     case LOWER:
       if (record->event.pressed) {
@@ -333,28 +320,17 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           layer_off(_ADJUST);
         }
         return false;
-    case KC_RACL:
-        if (record->event.pressed) {
-          my_colon_timer = timer_read();
-          register_code(KC_RALT);
-        } else {
-          unregister_code(KC_RALT);
-          if (timer_elapsed(my_colon_timer) < TAPPING_TERM) {
-            SEND_STRING(":"); // Change the character(s) to be sent on tap here
-          }
+    case LT(0, KC_ENT_RAISE):
+        if (record->tap.count && record->event.pressed) {
+            tap_code(KC_ENT); // TAP Enter // tap
+        } else if (record->event.pressed) {
+            layer_on(_RAISE);  // Activate layer // hold
+            update_tri_layer(_LOWER, _RAISE, _ADJUST);
+        } else if (!record->tap.count) {
+            layer_off(_RAISE); // De-activate layer // de-hold
+            update_tri_layer(_LOWER, _RAISE, _ADJUST);
         }
         return false;
-    // case LYR_LOWER_ALT:
-    //     if (record->event.pressed) {
-    //         // when keycode LYR_LOWER_ALT is pressed
-    //         register_code(KC_RALT);  // press the ALT key
-    //         layer_on(_LOWER);          // turn on the _LOWER layer
-    //     } else {
-    //         // when keycode LYR_LOWER_ALT is released
-    //         layer_off(_LOWER);           // turn off the _LOWER layer
-    //         unregister_code(KC_RALT);  // release the ALT key
-    //     }
-    //     break;
     case RGBRST:
       #ifdef RGBLIGHT_ENABLE
         if (record->event.pressed) {
